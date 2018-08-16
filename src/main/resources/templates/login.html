@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录界面</title>
+
+
+    <link th:href="@{https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css}" rel="stylesheet">
+
+
+    <!--Bootstrap-->
+    <link th:href="@{Bootstrap/bootstrap/css/bootstrap.min.css}" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <!--这是一个完美的图标字体，为了和bootstrap配合使用-->
+    <link th:href="@{Bootstrap/font-awesome/css/font-awesome.min.css}" rel="stylesheet" />
+    <!--[if IE 7]>
+    <link href="/Content/font-awesome/css/font-awesome-ie7.min.css" rel="stylesheet" />
+    <![endif]-->
+    <!--sidebar-menu是侧边栏插件-->
+    <link th:href="@{Bootstrap/sidebar-menu/sidebar-menu.css}" rel="stylesheet" />
+    <link th:href="@{Bootstrap/ace/css/ace-rtl.min.css}" rel="stylesheet" />
+    <link th:href="@{Bootstrap/ace/css/ace-skins.min.css}" rel="stylesheet" />
+    <link th:href="@{Bootstrap/toastr/toastr.min.css}" rel="stylesheet" />
+
+    <script th:src="@{Bootstrap/jquery-1.9.1.min.js}"></script>
+    <script th:src="@{Bootstrap/bootstrap/js/bootstrap.min.js}"></script>
+    <script th:src="@{Bootstrap/sidebar-menu/sidebar-menu.js}"></script>
+    <script th:src="@{Bootstrap/bootstrap/js/bootstrap-tab.js}"></script>
+    <!--[if lt IE 9]>
+    <script src="/Scripts/html5shiv.js"></script>
+    <script src="/Scripts/respond.min.js"></script>
+    <![endif]-->
+
+
+    <style type="text/css">
+        body{
+            background: url("/images/login/beijing1.jpg") no-repeat;   /*设置背景图片不重复不平铺，只显示一张图片*/
+            background-size: cover;    /*设置背景图片铺满整个屏幕*/
+            animation-name:myfirst;
+            animation-duration:12s;
+            /*变换时间*/
+            animation-delay:2s;
+            /*动画开始时间*/
+            animation-iteration-count:infinite;
+            /*下一周期循环播放*/
+            animation-play-state:running;
+            /*动画开始运行*/
+        }
+        @keyframes myfirst
+        {
+            0%   {background:url("/images/login/beijing1.jpg") no-repeat;background-size: cover;}
+            34%  {background:url("/images/login/beijing2.jpg") no-repeat;background-size: cover;}
+            67%  {background:url("/images/login/beijing3.jpg") no-repeat;background-size: cover;}
+            100% {background:url("/images/login/beijing1.jpg") no-repeat;background-size: cover;}
+        }
+        .form{background: rgba(255,255,255,0.2);width:400px;margin:120px auto;}
+        /*阴影*/
+        .fa{display: inline-block;top: 27px;left: 6px;position: relative;color: #ccc;}
+        input[type="text"],input[type="password"]{padding-left:26px;}
+        .checkbox{padding-left:21px;}
+    </style>
+</head>
+<body>
+
+    <div class="container" id="login">
+        <div class="form row">
+            <form class="form-horizontal col-md-offset-3" id="login_form" method="post" action="/login">
+                <h3 class="form-title">LOGIN</h3>
+                <div class="col-md-9">
+                    <div class="form-group">
+                        <i class="fa fa-user fa-lg"></i>
+                        <input class="form-control required" type="text" placeholder="Username" id="username" name="username" autofocus="autofocus" maxlength="20"/>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <i class="fa fa-lock fa-lg"></i>
+                        <input class="form-control required" type="password" placeholder="Password" id="password" name="password" maxlength="8"/>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" name="remember" value="1"/>记住我
+                        </label>
+                    </div>
+                    <div class="form-group col-md-offset-9">
+                        <button type="submit" class="btn btn-success pull-right" name="submit" id="login_btn">登录</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <script type="text/javascript">
+        function show_validate_msg(ele,status,msg) {
+            //清除当前元素的校验状态
+            $(ele).parent().removeClass("has-success has-error");
+            $(ele).next("span").text("");
+            if ("success" == status){
+                $(ele).parent().addClass("has-success");
+                $(ele).next("span").text(msg);
+            }else if ("error" == status){
+                $(ele).parent().addClass("has-error");
+                $(ele).next("span").text(msg);
+            }
+        }
+
+        //在进入正式的登录信息验证之前先判断输入框是否为空
+        $("#username").change(function () {
+            var username = this.value;
+            if (username == ""){
+                show_validate_msg("#username","error","用户名不能为空");
+                $("#login_btn").attr("ajax-va","error");
+            }else {
+                show_validate_msg("#username","success","");
+                $("#login_btn").attr("ajax-va","success");
+            }
+        });
+
+        $("#password").change(function () {
+            var password = this.value;
+            if (password == ""){
+                show_validate_msg("#password","error","密码不能为空");
+                $("#login_btn").attr("ajax-va","error");
+            }else {
+                show_validate_msg("#password","success","");
+                $("#login_btn").attr("ajax-va","success");
+            }
+        });
+
+        //在数据库中验证用户名和密码是否匹配
+        function validate_login() {
+            var username = $("#username").val();
+            var password = $("#password").val();
+            if (username == ""){
+                show_validate_msg("#username","error","用户名不能为空");
+                $("#login_btn").attr("ajax-va","error");
+                return false;
+            }
+            if (password == ""){
+                show_validate_msg("#password","error","密码不能为空");
+                $("#login_btn").attr("ajax-va","error");
+                return false;
+            }
+
+            $.ajax({
+                url:"/checklogin",
+                data:$("#login form").serialize(),
+                type:"GET",
+                async:false,
+                success:function (result) {
+                    if (result.code == 100){
+                        show_validate_msg("#username","success","");
+                        show_validate_msg("#password","success","");
+                        $("#login_btn").attr("ajax-va","success");
+                    }else if (result.code == 200){
+                        show_validate_msg("#username","error","用户名不存在");
+                        show_validate_msg("#password","success","");
+                        $("#login_btn").attr("ajax-va","error");
+                    }else {
+                        show_validate_msg("#username","success","");
+                        show_validate_msg("#password","error","密码错误");
+                        $("#login_btn").attr("ajax-va","error");
+                    }
+                }
+            });
+        }
+
+        //点击登录
+        $("#login_btn").click(function () {
+            //验证表单输入数据
+            validate_login();
+            //判断之前的用户信息跟数据库中的比对是否成功
+            if ($(this).attr("ajax-va") == "error"){
+                return false;
+            }
+            //页面跳转
+            var username = $("#username").val();
+            var password = $("#password").val();
+            window.location.href = "login?username="+username+"&password="+password;
+        });
+    </script>
+
+</body>
+</html>

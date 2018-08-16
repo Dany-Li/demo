@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.mapper.QuestionMapper">
+    <resultMap id="WithBaseResultMap" type="com.springboot.bean.Question">
+        <id column="que_id" jdbcType="INTEGER" property="queId"></id>
+        <result column="que_title" jdbcType="VARCHAR" property="queTitle"></result>
+        <result column="que_content" jdbcType="VARCHAR" property="queContent"></result>
+        <result column="u_id" jdbcType="INTEGER" property="uId"></result>
+        <result column="que_time" jdbcType="TIMESTAMP" property="queTime"></result>
+        <result column="subject_id" jdbcType="INTEGER" property="subjectId"></result>
+        <result column="count" jdbcType="INTEGER" property="count"></result>
+
+        <!--指定联合查询出的用户字段的封装-->
+        <association property="user" javaType="com.springboot.bean.User">
+            <id column="user_id" property="userId"></id>
+            <result column="user_name" property="userName"></result>
+        </association>
+
+        <!--指定联合查询出的科目字段的封装-->
+        <association property="subject" javaType="com.springboot.bean.Subject">
+            <id column="sub_id" property="subId"></id>
+            <result column="subject_name" property="subjectName"></result>
+        </association>
+    </resultMap>
+
+    <!--,s.sub_id,s.subject_name-->
+    <sql id="With_Column_List">
+        q.que_id,q.que_title,q.que_content,q.u_id,q.que_time,q.subject_id,q.count,
+        u.user_id,u.user_name,s.sub_id,s.subject_name
+    </sql>
+
+
+    <!--LEFT JOIN user u,subject s ON q.'u_id'=u.'user_id',q.'subject_id'=s.'sub_id'-->
+    <!--LEFT JOIN user u ON q.`u_id`=u.`user_id`-->
+    <select id="getAllByIdDesc" resultMap="WithBaseResultMap">
+        SELECT
+        <include refid="With_Column_List" />
+        FROM question q
+        LEFT JOIN user u ON q.`u_id`=u.`user_id`
+        LEFT JOIN subject s ON q.`subject_id`=s.`sub_id`
+        ORDER BY q.que_id DESC
+    </select>
+
+    <select id="selectQuesByType" resultMap="WithBaseResultMap">
+        SELECT
+        <include refid="With_Column_List" />
+        FROM question q
+        LEFT JOIN user u ON q.`u_id`=u.`user_id`
+        LEFT JOIN subject s ON q.`subject_id`=s.`sub_id`
+        WHERE subject_id=#{subject_id,jdbcType=INTEGER}
+        ORDER BY q.que_id DESC
+    </select>
+</mapper>

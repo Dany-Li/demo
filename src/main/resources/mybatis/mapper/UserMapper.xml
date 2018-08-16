@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.springboot.bean.User">
+        <id column="user_id" jdbcType="INTEGER" property="userId"></id>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"></result>
+        <result column="password" jdbcType="VARCHAR" property="password"></result>
+        <result column="gender" jdbcType="VARCHAR" property="gender"></result>
+        <result column="email" jdbcType="VARCHAR" property="email"></result>
+        <result column="role" jdbcType="VARCHAR" property="role"></result>
+        <!--<result column="register_date" jdbcType="DATE" property="registerDate"></result>-->
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_id,user_name,password,gender,email,role
+    </sql>
+
+
+    <select id="selectByUserName" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM user WHERE user_name=#{userName,jdbcType=VARCHAR}
+    </select>
+
+    
+    <!--查询该用户名是否存在-->
+    <select id="countUserName" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT COUNT (*) FROM user
+        <if test="_parameter != null">
+            WHERE user_name=#{username,jdbcType="VARCHAR"}
+        </if>
+        
+    </select>
+    
+
+    <!--根据用户名查找-->
+    <select id="getUserName" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user WHERE user_name=#{userName}
+    </select>
+
+    <!--登录-->
+    <select id="getUser" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user WHERE user_name=#{username} AND password=#{password}
+    </select>
+
+
+    <!--注册-->
+    <insert id="insert" parameterType="com.springboot.bean.User">
+        INSERT INTO user(user_name,password,gender,email,role)
+        VALUES (#{userName},#{password},#{gender},#{email},#{role})
+    </insert>
+</mapper>
